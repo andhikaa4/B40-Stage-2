@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Pizza from './Image/g10.png'
 import Burger from './Image/BK.png'
@@ -11,6 +12,11 @@ import Kopi from './Image/kopi.png'
 import Aygor from './Image/aygor.png'
 
 function Home() {
+    const navigate = useNavigate();
+
+    const handleMenu = ()=> {
+        navigate("/Menu")
+    }
   return (
     <div>
         
@@ -38,19 +44,19 @@ function Home() {
                         <div className='d-flex justify-content-between' >
                             <div className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px"}}>
                                 <img style={{height:"50px"}} className='me-3' src={Burger} alt="" />
-                                <h4 className='mt-3 fs-6'>Burger King</h4>
+                                <h4 style={{cursor:"pointer"}} onClick={handleMenu} className='mt-3 fs-6'>Burger King</h4>
                             </div>
                             <div className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px"}}>
                                 <img style={{height:"50px"}} className='me-3' src={Kfc} alt="" />
-                                <h4 className='mt-3 fs-6'>KFC</h4>
+                                <h4 style={{cursor:"pointer"}} onClick={handleMenu} className='mt-3 fs-6'>KFC</h4>
                             </div>
                             <div className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px"}}>
                                 <img style={{height:"50px"}} className='me-3' src={Donat} alt="" />
-                                <h4 className='mt-3 fs-6'>JCO Dough</h4>
+                                <h4 style={{cursor:"pointer"}} onClick={handleMenu} className='mt-3 fs-6'>JCO Dough</h4>
                             </div >
                             <div className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px"}}>
                                 <img style={{height:"50px"}} className='me-3' src={Starbuck} alt="" />
-                                <h4 className='mt-3 fs-6'>Starbucks</h4>
+                                <h4 style={{cursor:"pointer"}} onClick={handleMenu} className='mt-3 fs-6'>Starbucks</h4>
                             </div>
                         </div>
                 </div>
