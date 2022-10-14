@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Pizza from './Image/g10.png'
@@ -10,16 +10,33 @@ import Geprek from './Image/geprek.png'
 import Nasgor from './Image/nasgor.png'
 import Kopi from './Image/kopi.png'
 import Aygor from './Image/aygor.png'
+import { CardContext } from '../Component/Context/cardContext';
+import User from '../Component/dataDummy/foodMenu'
 
 function Home() {
+
     const navigate = useNavigate();
 
     const handleMenu = ()=> {
         navigate("/Menu")
     }
+    
+    const[dataCard, dispatch] = useContext(CardContext)
+    const [resto, setResto] = useState([])
+
+    const handlePush = (e, index) => {
+        resto.push(e)
+        dispatch({
+            type: "VIEW_RESTO",
+            restoLoad: resto,
+
+        })
+        
+        navigate('/Menu/' + index)
+
+    }
   return (
     <div>
-        
         <div className='bg-warning pb-5' >
             <div className='container d-flex justify-content-center align-items-center '>
                 <div className=' flex-50 me-5'>
@@ -41,23 +58,29 @@ function Home() {
             <div className='container p-5'>    
                 <div className='px-5'>
                     <h2 className='mb-4'>Popular Restaurant</h2>
-                        <div className='d-flex justify-content-between' >
-                            <div className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px"}}>
-                                <img style={{height:"50px"}} className='me-3' src={Burger} alt="" />
-                                <h4 style={{cursor:"pointer"}} onClick={handleMenu} className='mt-3 fs-6'>Burger King</h4>
-                            </div>
-                            <div className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px"}}>
+                        <div className='d-flex justify-content-between overflow-auto  ' style={{whiteSpace:"nowrap"}} >
+                            {User.map((e,index) => {
+                                return(
+                                    <div key={index} className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px",flexShrink:"0", flexBasis:"20%"}}>
+                                        <img style={{height:"50px"}} className='me-3' src={e.logo} alt="" />
+                                        <h4 style={{cursor:"pointer"}} onClick={() => handlePush(e, index)} className='mt-3 fs-6'>{e.name}</h4>
+                                    </div>
+                                )
+                            })}
+                            
+                            {/* <div className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px", flexShrink:"0", flexBasis:"20%"}}>
                                 <img style={{height:"50px"}} className='me-3' src={Kfc} alt="" />
                                 <h4 style={{cursor:"pointer"}} onClick={handleMenu} className='mt-3 fs-6'>KFC</h4>
                             </div>
-                            <div className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px"}}>
+                            <div className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px",flexShrink:"0", flexBasis:"20%"}}>
                                 <img style={{height:"50px"}} className='me-3' src={Donat} alt="" />
                                 <h4 style={{cursor:"pointer"}} onClick={handleMenu} className='mt-3 fs-6'>JCO Dough</h4>
                             </div >
-                            <div className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px"}}>
+                            <div className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px", flexShrink:"0", flexBasis:"20%"}}>
                                 <img style={{height:"50px"}} className='me-3' src={Starbuck} alt="" />
                                 <h4 style={{cursor:"pointer"}} onClick={handleMenu} className='mt-3 fs-6'>Starbucks</h4>
-                            </div>
+                            </div> */}
+                            
                         </div>
                 </div>
                 <div className='px-5 mt-4'>

@@ -1,25 +1,46 @@
-import React from 'react'
+import React, { useContext, useState } from 'react'
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
-import Users from '../Component/dataDummy/foodMenu'
-import {useNavigate} from 'react-router-dom'
+import Users, { user } from '../Component/dataDummy/foodMenu'
+import {useNavigate, useParams} from 'react-router-dom'
+import { CardContext } from '../Component/Context/cardContext';
 
 
 
 function Menu() {
+
+    const [dataCard, dispatch] = useContext(CardContext)
+    console.log('test',dataCard);
     const navigate = useNavigate();
 
     const handleBack = (e) => {
         e.preventDefault()
         navigate("/")
     }
+
+    const params = useParams()
+
+    const index = params.id
+
+    const [cart, setCart] = useState([])
+
+    const handlePush = (e) => {
+        cart.push(e)
+        dispatch({
+            type: "ADD_ORDER",
+            payload: cart,
+
+        })
+    }
+    
+
   return (
     <div style={{backgroundColor:"#E5E5E5"}}>
         <div className='container p-5'>
             <a onClick={handleBack} style={{fontSize:"20px", color:"black", textDecoration:"none"}} href=""><img style={{height:"30px", marginRight:"5px"}} src="https://cdn-icons-png.flaticon.com/512/93/93634.png" alt=""/>Back to Home</a>
-            <h2 style={{fontFamily:"Abhaya Libre ExtraBold"}} className=' mt-2'>5 Ways Food, Menus</h2>
+            <h2 style={{fontFamily:"Abhaya Libre ExtraBold"}} className=' mt-2'>{user[index].name}, Menus</h2>
             <div className='d-flex flex-wrap'>
-            {Users.map((e, index)=>{
+            {user[index].product.map((e, index)=>{
             return (
                 <Card key={index} className='me-3 mt-3 p-2' style={{ width: '18rem'}}>
                     <Card.Img variant="top" src={e.image} />
@@ -28,7 +49,7 @@ function Menu() {
                             <Card.Text>
                                 {e.price}
                             </Card.Text>
-                            <Button className='w-100' variant="warning">Order</Button>
+                            <Button className='w-100 mt-auto' onClick={() => handlePush(e)} variant="warning">Order</Button>
                         </Card.Body>
                 </Card>
                  );})}

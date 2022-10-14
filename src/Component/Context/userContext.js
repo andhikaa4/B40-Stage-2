@@ -16,6 +16,11 @@ const reducer = (_, action) => {
         isLogin: true,
         user: payload,
       };
+      case "LOGIN_ADMIN":
+        return {
+          isLoginAdmin: true,
+          user: payload,
+        };
     case "LOGOUT":
       return {
         isLogin: false,
