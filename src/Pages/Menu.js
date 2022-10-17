@@ -4,10 +4,11 @@ import Card from 'react-bootstrap/Card';
 import Users, { user } from '../Component/dataDummy/foodMenu'
 import {useNavigate, useParams} from 'react-router-dom'
 import { CardContext } from '../Component/Context/cardContext';
+import toRupiah from '@develoka/angka-rupiah-js';
 
 
+function Menu(props) {
 
-function Menu() {
 
     const [dataCard, dispatch] = useContext(CardContext)
     console.log('test',dataCard);
@@ -18,6 +19,8 @@ function Menu() {
         navigate("/")
     }
 
+
+    console.log(props);
     const params = useParams()
 
     const index = params.id
@@ -29,7 +32,6 @@ function Menu() {
         dispatch({
             type: "ADD_ORDER",
             payload: cart,
-
         })
     }
     
@@ -40,16 +42,16 @@ function Menu() {
             <a onClick={handleBack} style={{fontSize:"20px", color:"black", textDecoration:"none"}} href=""><img style={{height:"30px", marginRight:"5px"}} src="https://cdn-icons-png.flaticon.com/512/93/93634.png" alt=""/>Back to Home</a>
             <h2 style={{fontFamily:"Abhaya Libre ExtraBold"}} className=' mt-2'>{user[index].name}, Menus</h2>
             <div className='d-flex flex-wrap'>
-            {user[index].product.map((e, index)=>{
+            {user[index].product.map((e)=>{
             return (
-                <Card key={index} className='me-3 mt-3 p-2' style={{ width: '18rem'}}>
+                <Card key={e.id} className='me-3 mt-3 p-2' style={{ width: '18rem'}}>
                     <Card.Img variant="top" src={e.image} />
                         <Card.Body>
-                            <Card.Title>{e.name}</Card.Title>
-                            <Card.Text>
-                                {e.price}
+                            <Card.Title >{e.name} </Card.Title>
+                            <Card.Text >
+                                {toRupiah(e.price,{dot: '.', floatingPoint:0})}
                             </Card.Text>
-                            <Button className='w-100 mt-auto' onClick={() => handlePush(e)} variant="warning">Order</Button>
+                            <Button className='w-100' onClick={() => {handlePush(e); props.addItem(e)}} variant="warning">Order</Button>
                         </Card.Body>
                 </Card>
                  );})}

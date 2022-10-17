@@ -15,23 +15,17 @@ import Logout from '../Pages/Image/logout.png';
 import {useNavigate} from 'react-router-dom';
 import AP from '../Pages/Image/AP.png'
 import { CardContext } from './Context/cardContext';
+import { UserContext } from './Context/userContext';
+import { ProfileContext } from './Context/profileContext';
+
+
 
 
 function NavBefore(props) {
 
-  
+  const [dataCard] = useContext(CardContext)
+  const [dataUser] = useContext(UserContext)
  
-
-    const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-
-  const [showRegis, setShowRegis] = useState(false);
-  const handleCloseRegis = () => setShowRegis(false);
-  const handleShowRegis = () => setShowRegis(true);
-
-  const [isLoggedin, setIsLoggedin] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   const navigate = useNavigate();
 
@@ -54,11 +48,11 @@ function NavBefore(props) {
             navbarScroll>
 
           </Nav>
-          { isAdmin ?
-            <AdminPage logoutAdmin={() => setIsAdmin(!isAdmin)}/> : 
-            isLoggedin ?
-            <PrivatePage logout={() => setIsLoggedin(!isLoggedin)}/>
-              : <GuestPage  loginAdmin={() => setIsAdmin(!isAdmin)} login={() => setIsLoggedin(!isLoggedin)}/>
+          { dataUser.isLoginAdmin ?
+            <AdminPage/> : 
+            dataUser.isLogin ?
+            <PrivatePage/>
+              : <GuestPage />
               }  
               
             
@@ -76,9 +70,20 @@ function NavBefore(props) {
   )
 }
 
-function PrivatePage(props) {
+export function PrivatePage(props) {
+  const [dataUser, setLogin] = useContext(UserContext)
+  const[dataCard] = useContext(CardContext)
+  const [dataProfile] = useContext(ProfileContext)
+
+  const LogoutUser = (e) => {
+    e.preventDefault()
+    setLogin ({
+      type: "LOGOUT_USER"
+    })
+    navigate('/')
+  }
+
   const navigate = useNavigate();
-  const [dataCard] = useContext(CardContext)
   const handleCart = (e) => {
       e.preventDefault()
       navigate("/Cart")
@@ -88,29 +93,42 @@ function PrivatePage(props) {
       navigate("/Profile")
   }
 
-  console.log(dataCard.cart.length);
     return (
       <div className='d-flex'>
             <div className='container pt-3'>
-            <button href='' onClick={handleCart} className='btn' >
-              <span className="position-absolute translate-middle p-2 rounded-circle">
-              <span className='bg-danger rounded-circle ' style={{paddingRight:"3px", paddingLeft:"3px"}}>{dataCard.cart?.length}</span>
-              </span> 
-              <img style={{cursor:"pointer", height:"25px"}} src={Keranjang} alt=""/>
-              
+            <button href='' onClick={handleCart} className='btn'>
+              {dataCard.cart ? 
+              <div>
+                    <span className="position-absolute translate-middle p-2 rounded-circle">
+                    <span className='bg-danger rounded-circle text-white px-2  ' style={{paddingRight:"3px", paddingLeft:"3px"}}>{dataCard.cart?.length}</span>
+                    </span> 
+                    <img style={{cursor:"pointer", height:"25px"}} src={Keranjang} alt=""/>
+                  </div> :
+                
+                  <img style={{cursor:"pointer", height:"25px"}} src={Keranjang} alt=""/> 
+                
+                }
+                
             </button>
                 
             </div>
             
             <Dropdown>
               <Dropdown.Toggle variant="transparent" id="dropdown-basic">
-                <img style={{height:"50px"}} src={Zayn} alt=""/>
+                {dataProfile.user ? 
+               <div>
+                 <img style={{height:"50px"}} className='rounded-circle' src={dataProfile.user.image} alt=""/>
+               </div> :
+               <div>
+                 <img style={{height:"50px"}} src={Zayn} alt=""/>
+               </div> 
+              }
               </Dropdown.Toggle>
 
               
                 <Dropdown.Menu>
                 <Dropdown.Item  onClick={handleProfile}><img style={{marginRight:"5px", height:"20px"}} src={User} alt=""/> Profile</Dropdown.Item>
-                <Dropdown.Item  onClick={props.logout}><img style={{marginRight:"8px", height:"20px"}} src={Logout} alt=""/>Logout</Dropdown.Item>
+                <Dropdown.Item  onClick={LogoutUser}><img style={{marginRight:"8px", height:"20px"}} src={Logout} alt=""/>Logout</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
       </div>
@@ -118,7 +136,9 @@ function PrivatePage(props) {
   }
   
   
-  function GuestPage(props) {
+ export function GuestPage(props) {
+
+    const [dataUser, setLogin] = useContext(UserContext)
 
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
@@ -141,15 +161,21 @@ function PrivatePage(props) {
       });
   }
 
+  const navigate = useNavigate()
   
 
   const handleOnSubmit = (e) => {
     e.preventDefault()
 
     if(form.email === "admin@mail.com"){
-        return props.loginAdmin()
+        setLogin({
+          type: "LOGIN_ADMIN"
+        })
+        navigate('/Profile-Partner')
     } else if (form.email === "user@mail.com"){
-      return props.login()
+      setLogin({
+        type: "LOGIN_USER"
+      })
       
     }
     else {
@@ -256,6 +282,18 @@ function PrivatePage(props) {
   }
 
   function AdminPage(props) {
+
+    const [dataUser, setLogin] = useContext(UserContext)
+    const [dataProfile] = useContext(ProfileContext)
+
+    const LogoutAdmin = (e) => {
+      e.preventDefault()
+      setLogin({
+        type:"LOGOUT_ADMIN"
+      })
+     navigate('/')
+    }
+
     const navigate = useNavigate();
   
     const handleCart = (e) => {
@@ -275,14 +313,20 @@ function PrivatePage(props) {
         <div className='d-flex'>
               <Dropdown>
                 <Dropdown.Toggle variant="transparent" id="dropdown-basic">
-                  <img style={{height:"50px"}} src={Zayn} alt=""/>
+                {dataProfile.partner ? 
+               <div>
+                 <img style={{height:"50px"}} className='rounded-circle' src={dataProfile.partner.image} alt=""/>
+               </div> :
+               <div>
+                 <img style={{height:"50px"}} src={Zayn} alt=""/>
+               </div> 
+                }
                 </Dropdown.Toggle>
-  
                 
                   <Dropdown.Menu>
                   <Dropdown.Item onClick={handleProfile}><img style={{marginRight:"5px", height:"20px"}} src={User} alt=""/> Profile</Dropdown.Item>
                   <Dropdown.Item onClick={handleAdd}><img style={{marginRight:"5px", height:"20px"}} src={AP} alt=""/> Add Product</Dropdown.Item>
-                  <Dropdown.Item onClick={props.logoutAdmin}><img style={{marginRight:"8px", height:"20px"}} src={Logout} alt=""/>Logout</Dropdown.Item>
+                  <Dropdown.Item onClick={LogoutAdmin}><img style={{marginRight:"8px", height:"20px"}} src={Logout} alt=""/>Logout</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
         </div>

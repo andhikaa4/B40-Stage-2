@@ -4,27 +4,28 @@ export const UserContext = createContext();
 
 const initialState = {
   isLogin: false,
-  user: {},
+  isLoginAdmin: false,
 };
 
 const reducer = (_, action) => {
   const { type, payload } = action;
 
   switch (type) {
-    case "LOGIN_SUCCESS":
+    case "LOGIN_USER":
       return {
         isLogin: true,
-        user: payload,
       };
       case "LOGIN_ADMIN":
         return {
           isLoginAdmin: true,
-          user: payload,
         };
-    case "LOGOUT":
+    case "LOGOUT_USER":
       return {
         isLogin: false,
-        user: {},
+      };
+      case "LOGOUT_ADMIN":
+      return {
+        isLoginAdmin: false,
       };
     default:
       throw new Error();
@@ -32,10 +33,10 @@ const reducer = (_, action) => {
 };
 
 export const UserContextProvider = ({ children }) => {
-  const [dataUser, dispatch] = useReducer(reducer, initialState);
+  const [dataUser, setLogin] = useReducer(reducer, initialState);
 
   return (
-    <UserContext.Provider value={[dataUser, dispatch]}>
+    <UserContext.Provider value={[dataUser, setLogin]}>
       {children}
     </UserContext.Provider>
   );

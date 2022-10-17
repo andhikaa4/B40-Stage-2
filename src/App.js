@@ -11,22 +11,30 @@ import AddProduk from './Pages/addProduk';
 import ProfileParner from './Pages/ProfilePartner';
 import EditProfileP from './Pages/EditProfileP';
 import IncomeTransaction from './Pages/IncomeTransaction';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { CardContext } from './Component/Context/cardContext';
+import { CartProvider } from 'react-use-cart';
+import {useCart} from 'react-use-cart'
 
 function App() {
-
-  const [dataCard] = useContext(CardContext)
-
+  const {
+    totalItems,
+    addItem,
+    items,
+    updateItemQuantity,
+    removeItem,
+    cartTotal, 
+    isEmpty
+  } = useCart();
 
   return (
     <div className='bg'>
       <Router>
         <NavBefore />
         <Routes> 
-          <Route exact path='/' element={<Home />}/>
-          <Route exact path='/Menu/:id' element={<Menu />}/>
-          <Route exact path='/Cart' element={<Cart />}/>
+          <Route exact path='/' element={<Home/>}/>
+          <Route exact path='/Menu/:id' element={<Menu addItem={addItem} />}/>
+          <Route exact path='/Cart' element={<Cart addLess={updateItemQuantity} cartTotal={cartTotal} totalItems={totalItems} items={items} empty={isEmpty} removeItem={removeItem}/>}/>
           <Route exact path='/Profile' element={<Profile />}/>
           <Route exact path='/user-edit' element={<EditProfileU />}/>
           <Route exact path='/Add-Product' element={<AddProduk />}/>
