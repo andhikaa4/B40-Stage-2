@@ -4,6 +4,7 @@ import (
 	dto "dumbmerch/dto/result"
 	usersdto "dumbmerch/dto/users"
 	"dumbmerch/models"
+	"dumbmerch/pkg/bcrypt"
 	"dumbmerch/repositories"
 	"encoding/json"
 	"net/http"
@@ -30,6 +31,9 @@ func (h *handler) FindUsers(w http.ResponseWriter, r *http.Request) {
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 	}
+	for i, p := range users {
+		users[i].Image = path_file + p.Image
+	}
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: "Success", Data: users}
@@ -48,6 +52,7 @@ func (h *handler) GetUser(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
+	user.Image = path_file + user.Image
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: "Success", Data: convertResponse(user)}
@@ -97,15 +102,25 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (h *handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	request := new(usersdto.UpdateUserRequest) //take pattern data submission
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
-		return
+	dataContex := r.Context().Value("dataFile") // add this code
+	filename := dataContex.(string)
+
+	request := usersdto.UpdateUserRequest{
+		Name:     r.FormValue("name"),
+		Email:    r.FormValue("email"),
+		Phone:    r.FormValue("phone"),
+		Location: r.FormValue("location"),
+		Role:     r.FormValue("role"),
 	}
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
+	password, err := bcrypt.HashingPassword(r.FormValue("password"))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+	}
 
 	user := models.User{}
 
@@ -117,14 +132,21 @@ func (h *handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		user.Email = request.Email
 	}
 
-	if request.Password != "" {
-		user.Password = request.Password
+	if password != "" {
+		user.Password = password
 	}
 	if request.Phone != "" {
 		user.Phone = request.Phone
 	}
 	if request.Location != "" {
 		user.Location = request.Location
+	}
+	if filename != "" {
+		user.Image = filename
+	}
+
+	if request.Role != "" {
+		user.Role = request.Role
 	}
 
 	data, err := h.UserRepository.UpdateUser(user, id)

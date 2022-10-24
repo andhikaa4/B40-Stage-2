@@ -25,7 +25,7 @@ func HandlerTransaction(TransactionRepository repositories.TransactionRepository
 func (h *handlerTransaction) FindTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	products, err := h.TransactionRepository.FindTransaction()
+	transactions, err := h.TransactionRepository.FindTransaction()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -34,7 +34,7 @@ func (h *handlerTransaction) FindTransaction(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: "Success", Data: products}
+	response := dto.SuccessResult{Code: "Success", Data: transactions}
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -60,7 +60,7 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-	// data form pattern submit to pattern entity db user
+
 	transaction := models.Transaction{
 		BuyerID:   userId,
 		Status:    request.Status,

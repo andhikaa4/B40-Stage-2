@@ -7,4 +7,6 @@ type UserResponse struct {
 	Password string `json:"password" form:"password" validate:"required"`
 	Phone    string `json:"phone" form:"phone" validate:"required"`
 	Location string `json:"location" form:"location" validate:"required"`
+	Image    string `json:"image" form:"image" validate:"required"`
+	Role     string `json:"role" gorm:"type: varchar(255)"`
 }
