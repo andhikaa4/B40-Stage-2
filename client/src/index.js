@@ -6,11 +6,13 @@ import { CardContextProvider } from './Component/Context/cardContext';
 import { ProfileContextProvider } from './Component/Context/profileContext';
 import { UserContextProvider } from './Component/Context/userContext';
 import { QueryClient, QueryClientProvider } from "react-query";
+import { BrowserRouter } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const client = new QueryClient();
 root.render(
   <React.StrictMode>
+    <BrowserRouter>
     <UserContextProvider>
         <ProfileContextProvider>
           <CardContextProvider>
@@ -23,5 +25,6 @@ root.render(
           </CardContextProvider> 
         </ProfileContextProvider>
     </UserContextProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );

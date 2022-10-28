@@ -29,6 +29,8 @@ function NavBefore(props) {
   // const [dataCard] = useContext(CardContext)
   const [state, dispatch] = useContext(UserContext)
 
+  console.log(state);
+
   if (localStorage.token) {
     setAuthToken(localStorage.token);
   }

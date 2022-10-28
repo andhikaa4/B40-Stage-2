@@ -20,7 +20,7 @@ import { UserContext } from './Component/Context/userContext';
 
 function App() {
 
-  // const navigate = useNavigate()
+  const navigate = useNavigate()
 
   if (localStorage.token) {
     setAuthToken(localStorage.token);
@@ -28,7 +28,47 @@ function App() {
 
   console.log(localStorage);
 
-  const [state, dispatch] = useContext(UserContext);
+
+    // const [dataCard] = useContext(CardContext)
+    const [state, dispatch] = useContext(UserContext)
+
+    console.log(state);
+  
+    if (localStorage.token) {
+      setAuthToken(localStorage.token);
+    }
+  
+    useEffect(() => {
+      if (state.isLogin == true && state.user.role == 'Seller') {
+        navigate('/Profile-Partner');
+      } else if (state.isLogin == true && state.user.role == 'Buyer') {
+        navigate('/');
+      }
+  }, [state]);
+  
+  const checkUser = async () => {
+    try {
+      const response = await API.get('/check-auth');
+      console.log(response);
+
+      // Get user data
+      let payload = response.data.data;
+      // Get token from local storage
+      payload.token = localStorage.token;
+  
+      // Send data to useContext
+      dispatch({
+        type: 'USER_SUCCESS',
+        payload,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
+  useEffect(() => {
+    checkUser();
+  }, []);
 
 
 
@@ -44,7 +84,7 @@ function App() {
 
   return (
     <div className='bg'>
-      <Router>
+      <>
         <NavBefore />
         <Routes> 
           <Route exact path='/' element={<Home/>}/>
@@ -58,7 +98,7 @@ function App() {
           <Route exact path='/income-partner' element={<IncomeTransaction />}/>
           
         </Routes>
-      </Router>
+      </>
 
       
     </div>

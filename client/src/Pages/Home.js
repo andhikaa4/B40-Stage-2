@@ -12,8 +12,9 @@ import { UserContext } from '../Component/Context/userContext';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import { Container, Alert } from 'react-bootstrap';
-import {useMutation} from 'react-query'
+import {useMutation,  useQuery} from 'react-query'
 import {API} from '../config/api'
+import BlankProfile from './Image/blankProfile.jpg'
 
 
 function Home(props) {
@@ -30,6 +31,16 @@ function Home(props) {
     const [showRegis, setShowRegis] = useState(false);
     const handleCloseRegis = () => setShowRegis(false);
     const handleShowRegis = () => setShowRegis(true);
+
+    const { data: users } = useQuery("usersCache", async () => {
+      const response = await API.get("/users");
+      console.log(response.data.data);
+      const Seller = response.data.data.filter((p)=> p.role == "Seller")
+      return Seller;
+    });
+
+    
+
 
 
     const [form, setForm] = useState({
@@ -153,20 +164,20 @@ function Home(props) {
                         <div className='d-flex justify-content-between overflow-auto  ' style={{whiteSpace:"nowrap"}} >
                             {state.isLogin ?
                             <div className='d-flex justify-content-between overflow-auto' style={{whiteSpace:"nowrap"}}>
-                                {User.map((e,index) => {
+                                {users?.map((e) => {
                                     return(
-                                        <div key={index} className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px",flexShrink:"0", flexBasis:"20%"}}>
-                                            <img style={{height:"50px"}} className='me-3' src={e.logo} alt="" />
-                                            <h4 style={{cursor:"pointer"}} onClick={(e) => {handlePush(e, index)}} className='mt-3 fs-6'>{e.name}</h4>
+                                        <div key={e.id} className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px",flexShrink:"0", flexBasis:"20%"}}>
+                                            <img style={{height:"50px", borderRadius:"100px", objectFit:"cover"}} className='me-3' src={e.image == "http://localhost:5000/uploads/"? BlankProfile: e.image} alt="" />
+                                            <h4 style={{cursor:"pointer"}} onClick={(e) => {handlePush(e)}} className='mt-3 fs-6'>{e.name}</h4>
                                         </div>
                                     )
                                 })}
                             </div> : 
                             <div className='d-flex justify-content-between overflow-auto' style={{whiteSpace:"nowrap"}}>
-                                {User.map((e,index) => {
+                                {users?.map((e) => {
                                     return(
-                                        <div key={index} className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px",flexShrink:"0", flexBasis:"20%"}}>
-                                            <img style={{height:"50px"}} className='me-3' src={e.logo} alt="" />
+                                        <div key={e.id} className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px",flexShrink:"0", flexBasis:"20%"}}>
+                                            <img style={{height:"50px"}} className='me-3' src={e.image == "http://localhost:5000/uploads/"? BlankProfile: e.image} alt="" />
                                             <h4 style={{cursor:"pointer"}} onClick={handleShow} className='mt-3 fs-6'>{e.name}</h4>
                                         </div>
                                     )
@@ -178,7 +189,7 @@ function Home(props) {
                         </div>
                 </div>
                 <div className='px-5 mt-4'>
-                    <h2 className='mb-4'>Popular Restaurant</h2>
+                    <h2 className='mb-4'>Restaurant Near You</h2>
                         <div className='d-flex'>
                             <div className='card p-2 me-2' style={{width: "18rem"}}>
                             <img src={Geprek} className='card-img-top' alt="..." />
