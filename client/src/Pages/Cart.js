@@ -1,21 +1,23 @@
 import React, { useContext, useEffect, useState } from 'react'
 import Loc from './Image/map.png'
-
 import Bin from './Image/bin.png'
-
+import Modal from 'react-bootstrap/Modal';
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { API } from '../config/api';
 import { useMutation, useQuery } from 'react-query';
 import EmptyCart from './Image/emptyCart.png'
-
 import toRupiah from '@develoka/angka-rupiah-js';
 import { UserContext } from '../Component/Context/userContext';
+import Map from '../Component/Map';
+
+
 
 function Cart() {
     const navigate = useNavigate()
     const [state] = useContext(UserContext)
-    const [idDelete, setIdDelete] = useState(null);
-    console.log(idDelete);
+
+    const [show, setShow] = useState(false);
+
 
     const { id } = useParams()
 
@@ -36,13 +38,37 @@ function Cart() {
 
     const deleteById = useMutation(async (id) => {
         try {
-          await API.delete(`/transactions/${id}`);
+            await API.delete(`/transactions/${id}`);
+            getData()
         } catch (error) {
-          console.log(error);
+            console.log(error);
         }
-      });
+    });
 
+    const HandleAdd = async (qty, id) => {
+        try {
+            await API.patch(`/transactions/${id}`, { qty: qty })
+            getData()
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    const HandleLess = async (qty, id) => {
+        try {
+            if (qty === 0) {
+                deleteById.mutate(id)
+            } else {
+                await API.patch(`/transactions/${id}`, { qty: qty })
+                getData()
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
     const filter = cart?.filter(p => p.buyer_id == id)
+    const sum = cart?.map(p => p.product.price * p.qty).reduce((a, b) => a += b, 0)
+    const qty = cart?.map(p => p.qty).reduce((a, b) => a += b, 0)
 
 
     return (
@@ -54,7 +80,7 @@ function Cart() {
                         <p className='fs-4'>Delivery Location</p>
                         <div className='d-flex align-items-center'>
                             <input className='rounded me-auto' style={{ padding: "7px", width: "80%" }} type="text"></input>
-                            <a className=' py-2 bg-dark text-white text-decoration-none rounded px-4'>Select on Map <img className='ms-2' src={Loc} /></a>
+                            <a onClick={() => setShow(true)} className=' py-2 bg-dark text-white text-decoration-none rounded px-4'>Select on Map <img className='ms-2' src={Loc} /></a>
                         </div>
                         <div>
                             <p className='fs-4 mt-3 container'>Review Your Order</p>
@@ -75,18 +101,18 @@ function Cart() {
                                                                     <p>{item.product.name}</p>
                                                                 </div>
                                                                 <div className='d-flex' style={{ height: "30px", boxSizing: "border-box" }}>
-                                                                    <button className='me-2 btn py-0'>-</button>
-                                                                    <p className='me-2 py-1'></p>
-                                                                    <button className='me-2 btn py-0' >+</button>
+                                                                    <button className='me-2 btn py-0' onClick={() => HandleLess(Math.max(0, item.qty -= 1), item.id)}>-</button>
+                                                                    <p className='me-2 py-1'>{item.qty}</p>
+                                                                    <button className='me-2 btn py-0' onClick={() => HandleAdd(item.qty += 1, item.id)} >+</button>
                                                                 </div>
 
                                                             </div>
                                                             <div>
                                                                 <div className='container' >
-                                                                    <p>{toRupiah(item.product.price, { dot: '.', floatingPoint: 0 })}  </p>
+                                                                    <p>{toRupiah((item.product.price * item.qty), { dot: '.', floatingPoint: 0 })}  </p>
                                                                 </div>
                                                                 <div className='ps-1'>
-                                                                    <img className='ms-5' onClick={() => setIdDelete(item.id)} src={Bin} alt="a" />
+                                                                    <img className='ms-5' onClick={() => { deleteById.mutate(item.id) }} src={Bin} alt="a" />
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -109,11 +135,11 @@ function Cart() {
                                     <div>
                                         <div className='d-flex ms-3'>
                                             <p className='me-auto'>Subtotal</p>
-                                            <p></p>
+                                            <p>{toRupiah(sum)}</p>
                                         </div>
                                         <div className='d-flex ms-3'>
                                             <p className='me-auto'>Qty</p>
-                                            <p></p>
+                                            <p>{qty}</p>
                                         </div>
                                         <div className='d-flex ms-3'>
                                             <p className='me-auto'>Ongkir</p>
@@ -123,7 +149,7 @@ function Cart() {
                                         <hr className=' ms-3 me-3 ' style={{ width: "100%", height: "2px", backgroundColor: "black", opacity: "100%" }} />
                                         <div className='d-flex ms-3'>
                                             <p className='me-auto'>Total :</p>
-                                            <p></p>
+                                            <p>{toRupiah(sum + 10000)}</p>
                                         </div>
                                     </div>
 
@@ -149,10 +175,19 @@ function Cart() {
                 </div>}
 
 
+            <Modal show={show} fullscreen={true} onHide={() => setShow(false)}>
+                <Modal.Header closeButton>
+                </Modal.Header>
+                <Modal.Body>
+                    <Map/>
+                </Modal.Body>
+            </Modal>
+
         </div>
 
 
     )
 }
+
 
 export default Cart

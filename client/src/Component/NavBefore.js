@@ -89,8 +89,23 @@ export function PrivatePage(props) {
       })
       navigate("/")
   }
-    
-  
+
+  const [cart, setCart] = useState()
+    const getData = async () => {
+        try {
+            const response = await API.get("/transactions");
+            setCart(response.data.data)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+            getData()
+    }, [])
+
+    const filter = cart?.filter(p => p.buyer_id == state?.user.id)
+    console.log(filter?.length);
 
   
 
