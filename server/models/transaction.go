@@ -7,4 +7,5 @@ type Transaction struct {
 	Status    string               `json:"status"  gorm:"type:varchar(25)"`
 	ProductID int                  `json:"product_id" form:"product_id"`
 	Product   ProductOrderResponse `json:"product" `
+	Qty       int                  `json:"qty" `
 }

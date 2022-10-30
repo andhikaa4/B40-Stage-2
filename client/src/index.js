@@ -8,6 +8,7 @@ import { UserContextProvider } from './Component/Context/userContext';
 import { QueryClient, QueryClientProvider } from "react-query";
 import { BrowserRouter } from 'react-router-dom';
 
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const client = new QueryClient();
 root.render(

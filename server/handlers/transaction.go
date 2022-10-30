@@ -65,6 +65,7 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 		BuyerID:   userId,
 		Status:    request.Status,
 		ProductID: request.ProductID,
+		Qty:       request.Qty,
 	}
 
 	data, err := h.TransactionRepository.CreateTransaction(transaction)
@@ -95,6 +96,10 @@ func (h *handlerTransaction) UpdateTransaction(w http.ResponseWriter, r *http.Re
 
 	if request.Status != "" {
 		transaction.Status = request.Status
+	}
+
+	if request.Qty != 0 {
+		transaction.Qty = request.Qty
 	}
 
 	data, err := h.TransactionRepository.UpdateTransaction(transaction, id)

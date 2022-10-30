@@ -1,13 +1,15 @@
-import React, {useState} from 'react'
+import React, {useContext, useState} from 'react'
 import Clip from './Image/clip.png'
 import Form from 'react-bootstrap/Form';
 import {useMutation} from 'react-query'
 import {API} from '../config/api'
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../Component/Context/userContext';
 
 
 
 function AddProduk() {
+    const [state] = useContext(UserContext)
     const navigate = useNavigate()
 
     const [preview, setPreview] = useState(null)
@@ -53,7 +55,7 @@ function AddProduk() {
             },
           });
     
-          navigate("/Profile-Partner");
+          navigate("/Menu/" + state.user.id);
     
           console.log("ini insert product", data);
         } catch (error) {

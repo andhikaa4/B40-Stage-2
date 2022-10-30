@@ -1,77 +1,109 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Form from 'react-bootstrap/Form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ProfileContext } from '../Component/Context/profileContext';
 import Clip from './Image/clip.png'
 import Loc from './Image/map.png'
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import { useQuery } from 'react-query';
+import { API } from '../config/api';
 
 function EditProfileU() {
-    const [dataProfile, dispatch] = useContext(ProfileContext)
+  const {id} = useParams()
+  const [preview, setPreview] = useState(null)
+  const [show, setShow] = useState(false);
 
-    const [show, setShow] = useState(false);
+const handleClose = () => setShow(false);
+const handleShow = () => setShow(true);
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+let { data: editP } = useQuery("editPCache", async () => {
+  const response = await API.get("/user/" + id);
+  return response.data.data;
+});
 
-const navigate = useNavigate()
+  const[form, setForm] = useState({
+      name: '', 
+      email:'',
+      image:null,
+      phone:0,
+  })
 
- const [form, setForm] = useState({
-    name: '', 
-    email:'',
-    image:null,
-    phone:'',
- })
+  console.log(preview);
 
- const handleChange = (e) => {
-    setForm({
-        ...form,
-        [e.target.name]: e.target.value,
-    })}
-
-    const handleFile= (e) => {
+  useEffect(() => {
+      if (editP) {
+        setPreview(editP.image);
         setForm({
-        ...form,
-          image: URL.createObjectURL(e.target.files[0])
-        })
+          ...form,
+          name: editP.name,
+          email: editP.email,
+          phone: editP.phone,
+          password:editP.password
+        });
+      }
+  
+    }, [editP]);
+
+  const handleChange = (e) => {
+      setForm({
+          ...form,
+          [e.target.name]: e.target.type === "file" ? e.target.files : e.target.value,
+      })
+  
+      if (e.target.type === "file") {
+          let url = URL.createObjectURL(e.target.files[0]);
+          setPreview(url);
+        }
       }
 
-    const handlePush = (e) => {
-        dispatch({
-            type: "EDIT_USER",
-            payload: form,
+        const navigate = useNavigate()
 
-        })
+      const handleSubmit = async (e) => {
+          try {
+            e.preventDefault();
+  
+            const formData = new FormData();
+            if (form.image) {
+              formData.set("image", form?.image[0], form?.image[0]?.name);
+            }
+            formData.set("name", form.name);
+            formData.set("email", form.email);
+            formData.set("phone", form.phone);
 
-        navigate('/Profile')
-    }
+            const response = await API.patch("/user/" + editP.id, formData);
+      
+            navigate("/Profile-Partner/" + id);
+          } catch (error) {
+            console.log(error);
+          }
+        };
    
   return (
     <div className='container-xxl' style={{backgroundColor:"#E5E5E5", height:"100vh"}}>
         <div className='container p-5'>
             <h3 className='mb-5'>Edit Profile</h3>
-            <Form>
+            <Form onSubmit={(e) => handleSubmit(e)}>
                 <Form.Group className="mb-3 d-flex">
-                    <Form.Control name='name' onChange={handleChange} className='border border-success border-3 border-opacity-50' style={{width:"80%", marginRight:"5px"}} type="text" placeholder="Fullname" />
+                    <Form.Control name='name' value={form.name} onChange={handleChange} className='border border-success border-3 border-opacity-50' style={{width:"80%", marginRight:"5px"}} type="text" placeholder="Fullname" />
                     <div className='bg-white rounded px-3 cursor-pointer border border-success border-3 border-opacity-50' style={{width:"20%"}}>
                     <label className='d-flex pt-2 cursor-pointer' htmlFor="file"><p className='mt-1 me-auto'>Choose File </p> <img  style={{height:"30px"}} src={Clip} alt=''/>
-                    <Form.Control id='file' onChange={handleFile} name='image' style={{width:"20%"}} type="file" hidden />
+                    <Form.Control id='file' onChange={handleChange} name='image' style={{width:"20%"}} type="file" hidden />
                     </label>    
                     </div>
                 </Form.Group>
                 <Form.Group className="mb-3 " >
-                    <Form.Control name='email' onChange={handleChange}  style={{paddingTop:"11px", paddingBottom:"11px"}} className='border border-success border-3 border-opacity-50' type="email" placeholder="Email" />
+                    <Form.Control name='email' value={form.email} onChange={handleChange}  style={{paddingTop:"11px", paddingBottom:"11px"}} className='border border-success border-3 border-opacity-50' type="email" placeholder="Email" />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Control name='phone' onChange={handleChange} style={{paddingTop:"11px", paddingBottom:"11px"}} className='border border-success border-3 border-opacity-50' type="number" placeholder="Phone" />
+                    <Form.Control name='phone' value={form.phone} onChange={handleChange} style={{paddingTop:"11px", paddingBottom:"11px"}} className='border border-success border-3 border-opacity-50' type="number" placeholder="Phone" />
                 </Form.Group>
                 <Form.Group className="mb-3 d-flex">
                     <Form.Control className='border border-success border-3 border-opacity-50' style={{width:"80%", marginRight:"5px"}} type="text" placeholder="Location" />
                     <button onClick={(e) => {handleShow(); e.preventDefault()}} style={{width:"20%",paddingTop:"12px", paddingBottom:"12px"}} className=' bg-dark text-white text-decoration-none text-center rounded px-4'>Select on Map <img className='ms-2' src={Loc} /></button>
                 </Form.Group>
 
-                <button onClick={(e) => {handlePush(e); e.preventDefault()}} style={{width:"30%",paddingTop:"12px", paddingBottom:"12px"}} className=' mt-5 float-end bg-dark text-white text-decoration-none text-center rounded px-4'>Save</button>
+                <button style={{width:"30%",paddingTop:"12px", paddingBottom:"12px"}} className=' mt-5 float-end bg-dark text-white text-decoration-none text-center rounded px-4'>Save</button>
 
             </Form>
         </div>

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Pizza from './Image/g10.png'
 import Geprek from './Image/geprek.png'
@@ -31,16 +31,14 @@ function Home(props) {
     const [showRegis, setShowRegis] = useState(false);
     const handleCloseRegis = () => setShowRegis(false);
     const handleShowRegis = () => setShowRegis(true);
+    const params = useParams()
 
-    const { data: users } = useQuery("usersCache", async () => {
+
+    const { data: partner } = useQuery("partnerCache", async () => {
       const response = await API.get("/users");
-      console.log(response.data.data);
       const Seller = response.data.data.filter((p)=> p.role == "Seller")
       return Seller;
     });
-
-    
-
 
 
     const [form, setForm] = useState({
@@ -84,8 +82,6 @@ function Home(props) {
 
       navigate("/");
 
-      console.log("isi payload", payload);
-      console.log("ini data login", data);
     } catch (error) {
       console.log(error);
       const alert = <Alert variant="danger">Email / password salah!</Alert>;
@@ -128,7 +124,6 @@ function Home(props) {
                 restoLoad: resto,
     
             })
-            navigate('/Menu/' + index)
         } 
 
     }
@@ -161,24 +156,26 @@ function Home(props) {
             <div className='container p-5'>    
                 <div className='px-5'>
                     <h2 className='mb-4'>Popular Restaurant</h2>
-                        <div className='d-flex justify-content-between overflow-auto  ' style={{whiteSpace:"nowrap"}} >
+                        <div >
                             {state.isLogin ?
-                            <div className='d-flex justify-content-between overflow-auto' style={{whiteSpace:"nowrap"}}>
-                                {users?.map((e) => {
+                            <div className='d-flex overflow-auto' style={{whiteSpace:"nowrap"}}>
+                                {partner?.map((e) => {
                                     return(
-                                        <div key={e.id} className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px",flexShrink:"0", flexBasis:"20%"}}>
-                                            <img style={{height:"50px", borderRadius:"100px", objectFit:"cover"}} className='me-3' src={e.image == "http://localhost:5000/uploads/"? BlankProfile: e.image} alt="" />
-                                            <h4 style={{cursor:"pointer"}} onClick={(e) => {handlePush(e)}} className='mt-3 fs-6'>{e.name}</h4>
+                                      <Link to={`/Menu/${e.id}`} onClick={()=>handlePush(e)}>
+                                        <div key={e.id} className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px"}}>
+                                            <img style={{height:"50px", width:"50px", borderRadius:"100px", objectFit:"cover"}} className='me-3' src={e.image == "http://localhost:5000/uploads/"? BlankProfile: e.image} alt="" />
+                                            <h4 style={{cursor:"pointer",}}className='mt-3 me-auto fs-6 text-center'>{e.name}</h4>
                                         </div>
+                                        </Link>
                                     )
                                 })}
                             </div> : 
-                            <div className='d-flex justify-content-between overflow-auto' style={{whiteSpace:"nowrap"}}>
-                                {users?.map((e) => {
+                            <div className='d-flex overflow-auto' style={{whiteSpace:"nowrap"}}>
+                                {partner?.map((e) => {
                                     return(
-                                        <div key={e.id} className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px",flexShrink:"0", flexBasis:"20%"}}>
-                                            <img style={{height:"50px"}} className='me-3' src={e.image == "http://localhost:5000/uploads/"? BlankProfile: e.image} alt="" />
-                                            <h4 style={{cursor:"pointer"}} onClick={handleShow} className='mt-3 fs-6'>{e.name}</h4>
+                                        <div key={e.id} className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px"}}>
+                                            <img style={{height:"50px" , width:"50px", borderRadius:"100px", objectFit:"cover"}} className='me-3' src={e.image == "http://localhost:5000/uploads/"? BlankProfile: e.image} alt="" />
+                                            <h4 style={{cursor:"pointer"}} onClick={handleShow} className='mt-3 me-auto fs-6 text-center'>{e.name}</h4>
                                         </div>
                                     )
                                 })}

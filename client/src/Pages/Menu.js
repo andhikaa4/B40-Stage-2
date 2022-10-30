@@ -1,17 +1,26 @@
 import React, { useContext, useState } from 'react'
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
-import {useNavigate, useParams} from 'react-router-dom'
-import { CardContext } from '../Component/Context/cardContext';
+import { useNavigate, useParams } from 'react-router-dom'
 import toRupiah from '@develoka/angka-rupiah-js';
-import user from '../Component/dataDummy/foodMenu';
+import { useMutation, useQuery } from 'react-query'
+import { API } from '../config/api'
 
 
 function Menu(props) {
 
+    const { id } = useParams()
 
-    const [dataCard, dispatch] = useContext(CardContext)
-    console.log('test',dataCard);
+    const { data: products } = useQuery("productsCache", async () => {
+        const response = await API.get("/products");
+        return response.data.data;
+    });
+    const { data: user } = useQuery("userCache", async () => {
+        const response = await API.get("/user/" + id);
+        return response.data.data;
+    });
+
+
     const navigate = useNavigate();
 
     const handleBack = (e) => {
@@ -20,48 +29,49 @@ function Menu(props) {
     }
 
 
-    console.log(props);
-    const params = useParams()
+    const [cart, setCart] = useState({
+        status: "",
+        product_id: 0
+    })
 
-    const index = params.id
+    console.log(cart);
+  const handleSubmit = useMutation(async (e) => {
+    try {
+      e.preventDefault();
 
-    const [cart] = useState([])
+      const response = await API.post("/transactions", cart);
 
-    const handlePush = (e) => {
-        cart.push(e)
-        dispatch({
-            type: "ADD_ORDER",
-            payload: cart,
-        })
+      console.log("ini tambah cart", response)
+    } catch (error) {
+      console.log(error);
     }
-    
+  });
 
-  return (
-    <div style={{backgroundColor:"#E5E5E5"}}>
-        <div className='container p-5'>
-            <a onClick={handleBack} style={{fontSize:"20px", color:"black", textDecoration:"none"}} href=""><img style={{height:"30px", marginRight:"5px"}} src="https://cdn-icons-png.flaticon.com/512/93/93634.png" alt=""/>Back to Home</a>
-            <h2 style={{fontFamily:"Abhaya Libre ExtraBold"}} className=' mt-2'>{user[index].name}, Menus</h2>
-            <div className='d-flex flex-wrap'>
-            {user[index].product.map((e)=>{
-            return (
-                <Card key={e.id} className='me-3 mt-3 p-2' style={{ width: '18rem'}}>
-                    <Card.Img variant="top" src={e.image} />
-                        <Card.Body>
-                            <Card.Title >{e.name} </Card.Title>
-                            <Card.Text >
-                                {toRupiah(e.price,{dot: '.', floatingPoint:0})}
-                            </Card.Text>
-                            <Button className='w-100' onClick={() => {handlePush(e); props.addItem(e)}} variant="warning">Order</Button>
-                        </Card.Body>
-                </Card>
-                 );})}
 
-                
-                
+    return (
+        <div style={{ backgroundColor: "#E5E5E5"}}>
+            <div className='container p-5'>
+                <a onClick={handleBack} style={{ fontSize: "20px", color: "black", textDecoration: "none" }} href=""><img style={{ height: "30px", marginRight: "5px" }} src="https://cdn-icons-png.flaticon.com/512/93/93634.png" alt="" />Back to Home</a>
+                <h2 style={{ fontFamily: "Abhaya Libre ExtraBold" }} className=' mt-2'>{user?.name}, Menus</h2>
+                <div className='d-flex flex-wrap'>
+                    {products?.map((e, index) => (
+                        e.user_id == id ?
+                            <Card key={index = e.id} className='me-3 mt-3 p-2' style={{ width: '18rem' }}>
+                                <Card.Img variant="top" src={e.image} />
+                                <Card.Body>
+                                    <Card.Title >{e.name} </Card.Title>
+                                    <Card.Text >
+                                        {toRupiah(e.price, { dot: '.', floatingPoint: 0 })}
+                                    </Card.Text>
+                                    <Button className='w-100' onClick={(e)=>{setCart({product_id: index, status:"Waiting"}); handleSubmit.mutate(e)}} variant="warning">Order</Button>
+                                </Card.Body>
+                            </Card> : null
+                    )
+                    )}
+                </div>
             </div>
         </div>
-    </div>
-  )
+    )
 }
 
 export default Menu

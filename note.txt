@@ -1,1 +1,11 @@
 cevwqyqbwqrkdoiw
+
+<div className='container' style={{height:"80vh"}}>
+            <div className=' container mx-auto my-auto text-center' style={{width:"30%"}}>
+                <img src={EmptyCart} className="w-100" alt=""/>
+                <h4>Your Cart Is Empty</h4>
+                <p className='mb-0' style={{fontSize:"12px"}}>You have no items in your shopping cart.</p>
+                <p className='m-0 mb-3' style={{fontSize:"12px"}}>Let's go buy something!</p>
+                <button href="#" onClick={handleClick} className='btn bg-danger text-white px-5'>Shopping Now</button>
+            </div>
+        </div>

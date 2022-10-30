@@ -17,9 +17,10 @@ import AP from '../Pages/Image/AP.png'
 import { CardContext } from './Context/cardContext';
 import { UserContext } from './Context/userContext';
 import { ProfileContext } from './Context/profileContext';
-import {useMutation} from 'react-query'
+import {useMutation, useQuery} from 'react-query'
 import {API, setAuthToken} from '../config/api'
 import {Alert} from 'react-bootstrap'
+import BlankProfile from '../Pages/Image/blankProfile.jpg'
 
 
 
@@ -28,51 +29,6 @@ function NavBefore(props) {
 
   // const [dataCard] = useContext(CardContext)
   const [state, dispatch] = useContext(UserContext)
-
-  console.log(state);
-
-  if (localStorage.token) {
-    setAuthToken(localStorage.token);
-  }
-
-  useEffect(() => {
-    if (state.isLogin == true && state.user.role == 'Seller') {
-      navigate('/Profile-Partner');
-    } else if (state.isLogin == true && state.user.role == 'Buyer') {
-      navigate('/');
-    }
-}, [state]);
-
-const checkUser = async () => {
-  try {
-    const response = await API.get('/check-auth');
-
-    // If the token incorrect
-    if (response.status === 404) {
-      return dispatch({
-        type: 'AUTH_ERROR',
-      });
-    }
-
-    // Get user data
-    let payload = response.data.data.user;
-    // Get token from local storage
-    payload.token = localStorage.token;
-
-    // Send data to useContext
-    dispatch({
-      type: 'USER_SUCCESS',
-      payload,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-useEffect(() => {
-  checkUser();
-}, []);
- 
 
   const navigate = useNavigate();
 
@@ -118,68 +74,67 @@ useEffect(() => {
 }
 
 export function PrivatePage(props) {
-  const[dataCard] = useContext(CardContext)
-  const [dataProfile] = useContext(ProfileContext)
-
   const [state, dispatch] = useContext(UserContext)
-
-    let navigate = useNavigate()
+  const navigate = useNavigate()
+  
+  const { data: userBuyer } = useQuery("userBuyerCache", async () => {
+      const response = await API.get("/users");
+      return response.data.data;
+    });
 
     const LogoutUser = () => {
-        console.log(state)
-        dispatch({
-            type: "LOGOUT"
-        })
-        navigate("/")
-    }
+      console.log(state)
+      dispatch({
+          type: "LOGOUT"
+      })
+      navigate("/")
+  }
+    
+  
+
+  
 
   const handleCart = (e) => {
       e.preventDefault()
-      navigate("/Cart")
-  }
-  const handleProfile = (e) => {
-      e.preventDefault()
-      navigate("/Profile")
+      navigate("/cart/" + state.user.id)
   }
 
     return (
       <div className='d-flex'>
             <div className='container pt-3'>
             <button href='' onClick={handleCart} className='btn'>
-              {dataCard.cart ? 
               <div>
                     <span className="position-absolute translate-middle p-2 rounded-circle">
-                    <span className='bg-danger rounded-circle text-white px-2  ' style={{paddingRight:"3px", paddingLeft:"3px"}}>{dataCard.cart?.length}</span>
+                    <span className='bg-danger rounded-circle text-white px-2  ' style={{paddingRight:"3px", paddingLeft:"3px"}}></span>
                     </span> 
                     <img style={{cursor:"pointer", height:"25px"}} src={Keranjang} alt=""/>
-                  </div> :
-                
-                  <img style={{cursor:"pointer", height:"25px"}} src={Keranjang} alt=""/> 
-                
-                }
-                
+                  </div>                 
             </button>
                 
             </div>
-            
-            <Dropdown>
-              <Dropdown.Toggle variant="transparent" id="dropdown-basic">
-                {dataProfile.user ? 
-               <div>
-                 <img style={{height:"50px"}} className='rounded-circle' src={dataProfile.user.image} alt=""/>
-               </div> :
-               <div>
-                 <img style={{height:"50px"}} src={Zayn} alt=""/>
-               </div> 
-              }
-              </Dropdown.Toggle>
+            {userBuyer?.map((item) => (
+                  item.id == state.user.id ?
+                <Dropdown>
+                <Dropdown.Toggle variant="transparent" id="dropdown-basic">
+                 <div>
+                   <img style={{height:"50px" ,width:"50px", borderRadius:"100px", objectFit:"cover"}} 
+                   className='rounded-circle' src={item?.image == "http://localhost:5000/uploads/"? BlankProfile: item?.image} alt=""/>
+                 </div> 
 
-              
-                <Dropdown.Menu>
-                <Dropdown.Item  onClick={handleProfile}><img style={{marginRight:"5px", height:"20px"}} src={User} alt=""/> Profile</Dropdown.Item>
-                <Dropdown.Item  onClick={LogoutUser}><img style={{marginRight:"8px", height:"20px"}} src={Logout} alt=""/>Logout</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+                </Dropdown.Toggle>
+  
+                  <Dropdown.Menu>
+                  <Dropdown.Item  onClick={() => navigate(`/Profile/${item.id}`)}>
+                    <img style={{marginRight:"5px", height:"20px"}} src={User} alt=""/>
+                     Profile </Dropdown.Item>
+                  <Dropdown.Item  onClick={LogoutUser}>
+                    <img style={{marginRight:"8px", height:"20px"}} src={Logout} alt=""/>
+                    Logout</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>: null
+                  )
+                )}
+          
       </div>
     );
   }
@@ -198,7 +153,6 @@ export function PrivatePage(props) {
     const handleShowRegis = () => setShowRegis(true);
 
     const [message, setMessage] = useState(null);
-    const [messageLog, setMessageLog] = useState(null);
 
     const [state, dispatch] = useContext(UserContext);
 
@@ -236,14 +190,16 @@ export function PrivatePage(props) {
       setMessage(alert);
 
       let payload = data.data.data;
-
+      let userCheck = payload.role
       dispatch({
         type: "LOGIN_SUCCESS",
         payload,
       });
-
-      navigate("/");
-
+      if( userCheck == "Buyer"){
+        navigate("/");
+      } else {
+        navigate("/Profile-Partner/" + payload.id)
+      }
       console.log("isi payload", payload);
       console.log("ini data login", data);
     } catch (error) {
@@ -393,10 +349,12 @@ export function PrivatePage(props) {
   }
 
   function AdminPage(props) {
-
-    const [dataProfile] = useContext(ProfileContext)
-
     const [state, dispatch] = useContext(UserContext)
+    let { data: userSeller } = useQuery("userSellerCache", async () => {
+      const response = await API.get("/users");
+      return response.data.data;
+    });
+
 
     let navigate = useNavigate()
 
@@ -407,11 +365,6 @@ export function PrivatePage(props) {
         })
         navigate("/")
     }
-  
-    const handleProfile = (e) => {
-        e.preventDefault()
-        navigate("/Profile-Partner")
-    }
 
     const handleAdd = (e) => {
       e.preventDefault()
@@ -419,24 +372,25 @@ export function PrivatePage(props) {
     }
       return (
         <div className='d-flex'>
-              <Dropdown>
+                {userSeller?.map((item) => (
+                  item.id == state.user.id ?
+              <Dropdown key={item.id}>
                 <Dropdown.Toggle variant="transparent" id="dropdown-basic">
-                {dataProfile.partner ? 
-               <div>
-                 <img style={{height:"50px"}} className='rounded-circle' src={dataProfile.partner.image} alt=""/>
-               </div> :
-               <div>
-                 <img style={{height:"50px"}} src={Zayn} alt=""/>
-               </div> 
-                }
+                <div>
+                   <img style={{height:"50px" ,width:"50px", borderRadius:"100px", objectFit:"cover"}} 
+                   className='rounded-circle' src={item?.image == "http://localhost:5000/uploads/"? BlankProfile: item?.image}/>
+                   </div>
                 </Dropdown.Toggle>
                 
                   <Dropdown.Menu>
-                  <Dropdown.Item onClick={handleProfile}><img style={{marginRight:"5px", height:"20px"}} src={User} alt=""/> Profile</Dropdown.Item>
+                  <Dropdown.Item onClick={() => navigate(`/Profile-Partner/${item.id}`)}><img style={{marginRight:"5px", height:"20px"}} src={User} alt=""/> Profile</Dropdown.Item>
                   <Dropdown.Item onClick={handleAdd}><img style={{marginRight:"5px", height:"20px"}} src={AP} alt=""/> Add Product</Dropdown.Item>
                   <Dropdown.Item onClick={LogoutAdmin}><img style={{marginRight:"8px", height:"20px"}} src={Logout} alt=""/>Logout</Dropdown.Item>
                 </Dropdown.Menu>
-              </Dropdown>
+              </Dropdown> : null
+                  )
+                )}
+          
         </div>
       );
     }
