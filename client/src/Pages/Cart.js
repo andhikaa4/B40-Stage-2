@@ -8,7 +8,7 @@ import { useMutation, useQuery } from 'react-query';
 import EmptyCart from './Image/emptyCart.png'
 import toRupiah from '@develoka/angka-rupiah-js';
 import { UserContext } from '../Component/Context/userContext';
-import Map from '../Component/Map';
+import Map from '../Component/MapCart';
 
 
 

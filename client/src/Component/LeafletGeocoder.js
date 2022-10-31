@@ -12,6 +12,7 @@ function LeafletGeocoder() {
         var latlng = e.geocode.center;
         L.marker(latlng).addTo(map).bindPopup(e.geocode.name).openPopup();
         map.fitBounds(e.geocode.bbox);
+        console.log(latlng);
       })
       .addTo(map);
   }, []);

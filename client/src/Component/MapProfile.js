@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import { MapContainer, TileLayer, useMapEvent, Marker, Popup } from 'react-leaflet'
@@ -7,18 +7,44 @@ import L from 'leaflet';
 import LeafletGeocoder from './LeafletGeocoder';
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import "leaflet-control-geocoder/dist/Control.Geocoder.js";
+import LeafletRouting from './LeafletRouting';
 
-function Map() {
+export function LocationMarker(props) {
+    const [position, setPosition] = useState(null)
+
+    console.log(position);
+    const map = useMapEvent({
+      click() {
+        map.locate()
+      },
+      locationfound(e) {
+        setPosition(e.latlng)
+        props.set(e.latlng)
+        map.flyTo(e.latlng, map.getZoom())
+      },
+    })
+  
+    return position === null ? null : (
+      <Marker position={position}>
+        <Popup>You are here</Popup>
+      </Marker>
+
+    )
+  }
+
+function Map(props) {
     return (
-        <MapContainer style={{ height: "550px", width: "100%" }} center={[51.505, -0.09]} zoom={30} scrollWheelZoom={true}>
+        <MapContainer style={{ height: "550px", width: "100%" }} center={[-6.3815601041648025, 106.74959971067705]} zoom={30} scrollWheelZoom={true}>
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <LeafletGeocoder />
+            <LocationMarker set={props.set}/>
         </MapContainer>
     )
 }
+
+
 
 let DefaultIcon = L.icon({
     iconUrl: icon,

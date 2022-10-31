@@ -1,15 +1,23 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import { useNavigate, useParams } from 'react-router-dom'
 import toRupiah from '@develoka/angka-rupiah-js';
 import { useMutation, useQuery } from 'react-query'
 import { API } from '../config/api'
+import MenuModal from '../Component/Modal/MenuModal';
+import { Modal } from 'react-bootstrap';
+import { UserContext } from '../Component/Context/userContext';
 
 
 function Menu(props) {
 
     const { id } = useParams()
+
+    const [show, setShow] = useState(false);
+    const [state] = useContext(UserContext) 
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
     const { data: products } = useQuery("productsCache", async () => {
         const response = await API.get("/products");
@@ -19,37 +27,42 @@ function Menu(props) {
         const response = await API.get("/user/" + id);
         return response.data.data;
     });
-
-
+    
+    const [modal, setModal] = useState(null)
+    const [confirm, setConfirm] = useState(false)
+    
     const navigate = useNavigate();
-
+    
     const handleBack = (e) => {
         e.preventDefault()
         navigate("/")
     }
 
-
+    
     const [cart, setCart] = useState({
         status: "",
         product_id: 0
     })
 
-    console.log(cart);
-  const handleSubmit = useMutation(async (e) => {
-    try {
-      e.preventDefault();
 
-      const response = await API.post("/transactions", cart);
+    const handleSubmit = useMutation(async (e) => {
+        try {
+            const response = await API.post("/transactions", cart);
+                console.log("ini tambah cart", response)
 
-      console.log("ini tambah cart", response)
-    } catch (error) {
-      console.log(error);
-    }
-  });
-
-
+        } catch (error) {
+            console.log(error);
+        }
+    });
+    
+    useEffect((e) => {      
+        if (confirm)
+        handleSubmit.mutate(e)
+        setConfirm(false)
+    }, [confirm])
+    
     return (
-        <div style={{ backgroundColor: "#E5E5E5"}}>
+        <div style={{ backgroundColor: "#E5E5E5" }}>
             <div className='container p-5'>
                 <a onClick={handleBack} style={{ fontSize: "20px", color: "black", textDecoration: "none" }} href=""><img style={{ height: "30px", marginRight: "5px" }} src="https://cdn-icons-png.flaticon.com/512/93/93634.png" alt="" />Back to Home</a>
                 <h2 style={{ fontFamily: "Abhaya Libre ExtraBold" }} className=' mt-2'>{user?.name}, Menus</h2>
@@ -63,9 +76,12 @@ function Menu(props) {
                                     <Card.Text >
                                         {toRupiah(e.price, { dot: '.', floatingPoint: 0 })}
                                     </Card.Text>
-                                    <Button className='w-100' onClick={(e)=>{setCart({product_id: index, status:"Waiting"}); handleSubmit.mutate(e)}} variant="warning">Order</Button>
+                                    <Button className='w-100' onClick={() => { setCart({ product_id: index, status: "Waiting" }); handleShow(); setModal(e) }} variant="warning">Order</Button>
                                 </Card.Body>
-                            </Card> : null
+                                <MenuModal show={show} handleClose={handleClose} setConfirm={setConfirm} modal={modal}/>
+                            </Card>
+
+                            : null
                     )
                     )}
                 </div>

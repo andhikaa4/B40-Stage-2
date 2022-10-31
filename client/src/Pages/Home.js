@@ -161,7 +161,7 @@ function Home(props) {
                             <div className='d-flex overflow-auto' style={{whiteSpace:"nowrap"}}>
                                 {partner?.map((e) => {
                                     return(
-                                      <Link to={`/Menu/${e.id}`} onClick={()=>handlePush(e)}>
+                                      <Link className='text-decoration-none text-black' to={`/Menu/${e.id}`} onClick={()=>handlePush(e)}>
                                         <div key={e.id} className='d-flex align-item-center bg-white p-2 me-2 rounded ' style={{width:"250px"}}>
                                             <img style={{height:"50px", width:"50px", borderRadius:"100px", objectFit:"cover"}} className='me-3' src={e.image == "http://localhost:5000/uploads/"? BlankProfile: e.image} alt="" />
                                             <h4 style={{cursor:"pointer",}}className='mt-3 me-auto fs-6 text-center'>{e.name}</h4>
