@@ -7,7 +7,7 @@ function login() {
   return (
     <View display="flex" alignItems="center" justifyContent="center" flexDirection="column" height={hp('90%')}>
             <View justifyContent="center">
-            <Image width={wp('80%')} mb={4} alignItems="center" height={hp('25%')} source={Login} />
+            <Image width={wp('80%')} mb={4} alignItems="center"  resizeMode="contain" height={hp('25%')} source={Login} />
             <View width={wp('80%')} mb={4}>
                 <Text
                 textAlign="left"

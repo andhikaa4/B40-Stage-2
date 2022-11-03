@@ -7,7 +7,7 @@ function Home() {
     return (
         <View display="flex" alignItems="center" justifyContent="center" flexDirection="column" height={hp('90%')}>
             <View flex="70%" justifyContent="center">
-            <Image maxWidth="100%" height={hp('35%')} source={Homepage} />
+            <Image maxWidth="100%" height={hp('35%')}  resizeMode="contain" source={Homepage} />
             <View width={wp('70%')}>
                 <Text
                     textAlign="center"
