@@ -3,14 +3,15 @@ import { Center, Text, Button, Input, Link,Badge, View, Image, Flex, Spacer, Sel
 import Profile from '../images/profile.png'
 import { ModalMain } from './Modal/MainModal';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 function mainPage() {
     const [date, setDate] = useState();
     const [showModal, setShowModal] = useState(false);
     return (
-        <Flex height="95%" p={10} flexDirection="column">
-            <Flex direction="row" mb={10}>
-                <View>
+        <Flex height={hp('95%')} p={5} width={wp('90%')} flexDirection="column" mt={10}>
+            <Flex direction="row" width={wp('90%')} mb={7} >
+                <View justifyContent="center">
                     <Text fontSize="xl" fontWeight="bold" marginBottom={0}>Hi Andhika</Text>
                     <Text fontSize="sm" color="grey" marginBottom={0}>100 List</Text>
                 </View>
@@ -20,7 +21,7 @@ function mainPage() {
                     size="sm"
                     resizeMode='contain' />
             </Flex>
-            <View mb={3}>
+            <View mb={3} width={wp('90%')}>
                 <Input placeholder="Search List ..." width="100%"
                     borderRadius="4" py="3" px="1" fontSize="14"
                     InputLeftElement={<Icon m="2" ml="3" size="6" color="gray.400"
@@ -29,57 +30,67 @@ function mainPage() {
                         as={<MaterialIcons name="mic" />} />} />
             </View>
 
-            <Flex mb={10} direction="row">
-                <Button
-                    leftIcon={<MaterialIcons name="calendar-today" size={15} color="black" />}
-                    variant="outline" colorScheme="success"
-                    px={4} py={0} onPress={() => setShowModal(true)}
-                ><Text isTruncated maxW="100" w="100%" fontSize="xs">{date ? date.toDateString() : "choose Date"}</Text>
-                </Button>
+            <Flex mb={10} width={wp('90%')} direction="row">
+                <View width={wp('29%')}>
+                    <Button
+                        height="46px"
+                        leftIcon={<MaterialIcons name="calendar-today" size={15} color="black" />}
+                        variant="outline" colorScheme="success"
+                         onPress={() => setShowModal(true)}
+                    ><Text isTruncated maxW="90" w="90%" fontSize="xs">{date ? date.toDateString() : "Choose Date"}</Text>
+                    </Button>
+                    
+                </View>
                 <ModalMain date={date} setDate={setDate} showModal={showModal} setShowModal={setShowModal} />
                 <Spacer />
-                <Select
-                    placeholder="Category"
-                    minWidth="32"
+                <View width={wp('29%')}>
 
-                >
-                    <Select.Item label="JavaScript" value="js" />
-                    <Select.Item label="TypeScript" value="ts" />
-                </Select>
+                    <Select
+                        placeholder="Category"
+                        minWidth="20"
+
+                    >
+                        <Select.Item label="JavaScript" value="js" />
+                        <Select.Item label="TypeScript" value="ts" />
+                    </Select>
+                </View>
                 <Spacer />
-                <Select
-                    placeholder="Status"
-                    minWidth="32"
+                <View width={wp('29%')}>
+                    <Select
+                        placeholder="Status"
+                        minWidth="20"
 
-                >
-                    <Select.Item label="JavaScript" value="js" />
-                    <Select.Item label="TypeScript" value="ts" />
-                </Select>
+                    >
+                        <Select.Item label="JavaScript" value="js" />
+                        <Select.Item label="TypeScript" value="ts" />
+                    </Select>
+
+                </View>
 
             </Flex>
 
-            <View width="100%" backgroundColor="blue.100" p={2} rounded="md">
-                <Flex flexDirection="row" mb={3}>
+            <View width={wp('90%')} backgroundColor="blue.100"p={2} rounded="md">
+                <Flex flexDirection="row" mb={3} width={wp('85%')}>
                     <Text fontSize="lg" fontWeight="bold"  >Study Golang</Text>
                     <Spacer/>
                     <Badge colorScheme="darkBlue" rounded="md">
                         <Text color="white">Study</Text>
                     </Badge>
                 </Flex>
-                <Flex flexDirection="row" alignItems="center">
-                    <View>
-                        <Text mb={5} color="grey" fontSize="xs" width={300}>
+                <Flex flexDirection="row" alignItems="center" width={wp('85%')}>
+                    <View width={wp('60%')}>
+                        <Text mb={5} color="grey" fontSize="xs" width="100%">
                             Learn Golang to improve fundamentals and familiarize with coding.
                         </Text>
-                        <Text color="grey" fontSize="xs" width={300}>
+                        <Text color="grey" fontSize="xs" width="100%">
                             <Icon as={MaterialIcons} name="calendar-today" />
                             19 July 2022
                         </Text>
                     </View>
                     <Spacer/>
                     <View >
-                        <Center backgroundColor="green.500" rounded="full" height={60} >
-                            <MaterialIcons resizeMode="contain" name="check" size={60} color="white" />
+                        <Center backgroundColor="green.500" rounded="full" height={50} >
+                            <MaterialIcons resizeMode="contain" name="check" size={50} color="white" />
                         </Center>
                     </View>
                     

@@ -18,6 +18,7 @@ import Home from './component/Home.js'
 import Login from './component/Login.js'
 import Register from './component/Register.js'
 import MainPage from './component/MainPage.js'
+import AddCate from './component/AddCate'
 
 // Create Stack Navigation
 const Stack = createStackNavigator();
@@ -34,13 +35,14 @@ const MyTab = () => {
                 headerMode: "screen",
                 headerTintColor: "indigo",
                 headerStyle: { backgroundColor: "pink" },
+                headerShown:false,
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName
 
-                    if (route.name === "Hello") {
+                    if (route.name === "MainPage") {
                         iconName = focused ? "home" : "home-outline"
-                    } else if (route.name === "Form") {
-                        iconName = focused ? "document-text" : "document-text-outline"
+                    } else if (route.name === "AddCate") {
+                        iconName = focused ? "home" : "home-outline"
                     }
 
                     return <Ionicons name={iconName} size={20} color="orange" />
@@ -53,6 +55,7 @@ const MyTab = () => {
         >
 
             <Tab.Screen name="MainPage" component={MainPage} />
+            <Tab.Screen name="AddCate" component={AddCate} />
 
         </Tab.Navigator>
     )
@@ -79,6 +82,7 @@ export default function Container() {
                         title: "Login",
                         headerTintColor: "red",
                         headerMode: "screen",
+                        headerShown:false
 
                     }}
                 />
@@ -90,15 +94,14 @@ export default function Container() {
                         title: "Register",
                         headerTintColor: "red",
                         headerMode: "screen",
+                        headerShown:false
 
                     }}
                 />
                 <Stack.Screen
                     name="MainPage"
-                    component={MainPage}
+                    component={MyTab}
                     options={{
-                        title: "MainPage",
-                        headerTintColor: "red",
                         headerShown: false
 
                     }}

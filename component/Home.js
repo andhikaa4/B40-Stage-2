@@ -4,7 +4,7 @@ import Homepage from '../images/home.png'
 
 function home({navigation}) {
     return (
-        <Center>
+        <Center height="100%">
 
             <View width="90%" height="80%" alignItems="center">
                 <Image
