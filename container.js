@@ -19,6 +19,8 @@ import Login from './component/Login.js'
 import Register from './component/Register.js'
 import MainPage from './component/MainPage.js'
 import AddCate from './component/AddCate'
+import AddList from './component/AddList'
+import Detail from './component/DetailTodo'
 
 // Create Stack Navigation
 const Stack = createStackNavigator();
@@ -39,10 +41,13 @@ const MyTab = () => {
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName
 
-                    if (route.name === "MainPage") {
-                        iconName = focused ? "home" : "home-outline"
-                    } else if (route.name === "AddCate") {
-                        iconName = focused ? "home" : "home-outline"
+                    if (route.name === "ToDO List") {
+                        iconName = focused ? "list-circle" : "list-circle-outline"
+                    } else if (route.name === "Add Category") {
+                        iconName = focused ? "add-circle" : "add-circle-outline"
+                    }
+                     else if (route.name === "Add List") {
+                        iconName = focused ? "book" : "book-outline"
                     }
 
                     return <Ionicons name={iconName} size={20} color="orange" />
@@ -54,8 +59,9 @@ const MyTab = () => {
 
         >
 
-            <Tab.Screen name="MainPage" component={MainPage} />
-            <Tab.Screen name="AddCate" component={AddCate} />
+            <Tab.Screen name="ToDO List" component={MainPage} />
+            <Tab.Screen name="Add Category" component={AddCate} />
+            <Tab.Screen name="Add List" component={AddList} />
 
         </Tab.Navigator>
     )
@@ -101,6 +107,14 @@ export default function Container() {
                 <Stack.Screen
                     name="MainPage"
                     component={MyTab}
+                    options={{
+                        headerShown: false
+
+                    }}
+                />
+                <Stack.Screen
+                    name="Detail"
+                    component={Detail}
                     options={{
                         headerShown: false
 
