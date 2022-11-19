@@ -15,7 +15,7 @@ function mainPage({navigation}) {
     const [data, setData] = useState([])
     const [list, setList] = useState([])
     const [isLoading, setIsLoading] = useState(false);
-    const [status, setStatus] = useState(false)
+    const [category, setCategory] = useState([])
     
     const getData = async() => {
 
@@ -40,23 +40,38 @@ function mainPage({navigation}) {
             setData(res.data)
             setIsLoading(false);
 
-            const list = await API.get("/addList")
-            setList(list.data)
 
         
         } catch (error) {
             console.log(error);    
         }
     }
+
+    const getList = async () => {
+        try {
+          const token = await AsyncStorage.getItem('token');
+          if (token !== null) {
+            const list = await API.get("/addList")
+            setList(list.data)
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
     
     useEffect(() => {
         getData()
+        getList()
     },[])
 
-    const updateStatus = (index) => {
-        const res = API.patch(`/addList/${index}`, {status: true})
-        getData()
-        console.log(index);
+    const updateStatus = (index, status) => {
+        if(status == false){
+            const res = API.patch(`/addList/${index}`, {status: true})
+            getList()
+        } else {
+            const res = API.patch(`/addList/${index}`, {status: false})
+            getList()
+        }
     }
 
     const handleLogout = async() => {
@@ -64,13 +79,15 @@ function mainPage({navigation}) {
         navigation.navigate("Login")
     }
 
+    const filter = list?.filter(p => p.createdBy._id == data._id)
+
 
     return (
         <Flex height={hp('95%')} p={5} width={wp('90%')} flexDirection="column" mt={10}>
             <Flex direction="row" width={wp('90%')} mb={7} >
                 <View justifyContent="center">
                     <Text fontSize="xl" fontWeight="bold" marginBottom={0}>Hi {data.firstName}</Text>
-                    <Text fontSize="sm" color="grey" marginBottom={0}>100 List</Text>
+                    <Text fontSize="sm" color="grey" marginBottom={0}>{filter?.length} List</Text>
                 </View>
                 <Spacer />
                 <Image source={Profile}
@@ -107,8 +124,14 @@ function mainPage({navigation}) {
                         minWidth="20"
 
                     >
-                        <Select.Item label="JavaScript" value="js" />
-                        <Select.Item label="TypeScript" value="ts" />
+                        {category.map((item) =>(
+          item?.createdBy._id == data._id && (
+            <Select.Item label={item.name} value={item.name} 
+            
+            />
+
+          )
+        ))}
                     </Select>
                 </View>
                 <Spacer />
@@ -118,8 +141,8 @@ function mainPage({navigation}) {
                         minWidth="20"
 
                     >
-                        <Select.Item label="JavaScript" value="js" />
-                        <Select.Item label="TypeScript" value="ts" />
+                        <Select.Item label="Finished" value="true" />
+                        <Select.Item label="Ongoing" value="false" />
                     </Select>
 
                 </View>
@@ -127,7 +150,7 @@ function mainPage({navigation}) {
             </Flex>
 
                 {list.map((item, index) => (
-                    item.createdBy.id == data.id && (
+                    item.createdBy._id === data._id && (
                         <View key={index = item.id} width={wp('90%')} mb={3} backgroundColor="blue.100"p={2} rounded="md" >
                         <Flex flexDirection="row" mb={3} width={wp('85%')}>
                     {item.status == true ?
@@ -153,11 +176,11 @@ function mainPage({navigation}) {
                         {item.status == true ?
                         <Center backgroundColor="green.500" rounded="full" height={50} >
                             <MaterialIcons resizeMode="contain" name="check" size={50} color="white"  
-                            onPress={() => updateStatus(item._id) }/>
+                            onPress={() => updateStatus(item._id, item.status) }/>
                         </Center> : 
                         <Center backgroundColor="green.500" rounded="full" height={50} >
                             <AntDesign resizeMode="contain" name="minus" size={50} color="white"  
-                            onPress={() => updateStatus(item._id) }/>
+                            onPress={() => updateStatus(item._id, item.status) }/>
                     </Center>}
                     </View>
                     

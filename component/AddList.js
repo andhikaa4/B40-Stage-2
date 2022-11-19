@@ -64,7 +64,7 @@ function AddList() {
   const [list, setList] = useState({
     name: '',
     category: '',
-    date: new Date(),
+    date: '',
     desc:''
 });
 
@@ -103,7 +103,7 @@ const handleOnPress = async () => {
 
       >
         {category.map((item) =>(
-          item.createdBy.id == data.id && (
+          item.createdBy._id == data._id && (
             <Select.Item label={item.name} value={item.name} 
             
             />

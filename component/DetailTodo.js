@@ -1,6 +1,6 @@
 import { Text, View, Heading, Flex, Center, Spacer } from 'native-base'
 import React, { useEffect, useState } from 'react'
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { heightPercentageToDP } from 'react-native-responsive-screen';
 
 function DetailTodo({route}) {
